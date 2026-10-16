@@ -1,0 +1,12 @@
+ktor:
+  application:
+    modules:
+      - com.royaal.main.ApplicationKt.module
+  deployment:
+    port: ${PORT:8080}
+
+bible:
+  metaDbPath: databases/meta/meta.SQLite3
+  cache:
+    versesSeconds: 86400
+    searchSeconds: 600
