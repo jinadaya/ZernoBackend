@@ -1,40 +1,36 @@
 # Zerno backend
 
-Here are some useful links to get you started:
+Ktor + Exposed server for the Zerno Bible app. It serves Bibles stored as MyBible-style SQLite files.
 
-- [Ktor Documentation](https://ktor.io/docs/home.html)
-- [Ktor GitHub page](https://github.com/ktorio/ktor)
-- The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
+## Running
 
-## Features
+| Task | What it does |
+|---|---|
+| `./gradlew test` | Route tests (`testApplication`) against small fixture databases, plus checks of the real meta database and bundled Bibles |
+| `./gradlew run` | Starts the server on port 8080 (`PORT` overrides) |
+| `./gradlew buildFatJar` | Builds a runnable JAR |
 
-Here's a list of features included in this project:
+Config lives in `src/main/resources/application.yaml`:
 
-| Name                                                                   | Description                                                                        |
-| ------------------------------------------------------------------------|------------------------------------------------------------------------------------ |
-| [Routing](https://start.ktor.io/p/routing)                             | Provides a structured routing DSL                                                  |
-| [kotlinx.serialization](https://start.ktor.io/p/kotlinx-serialization) | Handles JSON serialization using kotlinx.serialization library                     |
-| [Content Negotiation](https://start.ktor.io/p/content-negotiation)     | Provides automatic content conversion according to Content-Type and Accept headers |
-| [Exposed](https://start.ktor.io/p/exposed)                             | Adds Exposed database to your application                                          |
+- `bible.metaDbPath` (`BIBLE_META_DB_PATH`), default `databases/meta/meta.SQLite3`
+- `bible.biblesDir` (`BIBLE_FILES_DIR`), default `databases/bibles`; a Bible file is read from `<biblesDir>/<language_id>/<db_path>`
 
-## Building & Running
+## Routes
 
-To build or run the project, use one of the following tasks:
+| Route | Returns |
+|---|---|
+| `GET /health` | `OK` |
+| `GET /languages` | All languages |
+| `GET /bibles?langId=en` | Bibles of a language, with `translation_code`, `licence` and `attribution` |
+| `GET /bible/{bibleId}` | Books; a book's `id` is its MyBible `book_number` (10 = Genesis) |
+| `GET /bible/{bibleId}/{bookId}/chapters` | Chapters of a book with verse counts |
+| `GET /bible/{bibleId}/verses?offset=0&limit=50` | Verses in reading order; `limit` is 1 to 1000, `total` is the whole Bible |
 
-| Task                                    | Description                                                          |
-| -----------------------------------------|---------------------------------------------------------------------- |
-| `./gradlew test`                        | Run the tests                                                        |
-| `./gradlew build`                       | Build everything                                                     |
-| `./gradlew buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `./gradlew buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `./gradlew publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `./gradlew run`                         | Run the server                                                       |
-| `./gradlew runDocker`                   | Run using the local docker image                                     |
+Errors are JSON: `{"error": "bible_not_found", "message": "..."}` with 400 for bad input and 404 for an unknown language, Bible, book, or a Bible whose file isn't on the server.
 
-If the server starts successfully, you'll see the following output:
+## Databases
 
-```
-2024-12-04 14:32:45.584 [mainApp] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [mainApp] INFO  Application - Responding at http://0.0.0.0:8080
-```
-
+- `databases/meta/meta.sql` is the source of `meta.SQLite3`. Edit the SQL, then rebuild:
+  `rm databases/meta/meta.SQLite3 && sqlite3 databases/meta/meta.SQLite3 < databases/meta/meta.sql`
+- Bible files are opened read-only and never modified by the server.
+- Only public-domain texts are in this repository (KJV, ASV, RST). NRT is Biblica's copyrighted text and stays out until the licence is signed; the Tajik Bible (`km`) stays out until its licence is checked. Both are listed in the meta database and answer 404 `bible_file_missing` until their files are deployed.

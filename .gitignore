@@ -34,3 +34,7 @@ out/
 
 ### VS Code ###
 .vscode/
+### SQLite side files ###
+*.SQLite3-shm
+*.SQLite3-wal
+*.SQLite3-journal
