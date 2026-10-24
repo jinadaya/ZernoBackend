@@ -1,0 +1,7 @@
+.gradle
+.idea
+build
+deploy/.env
+**/*.SQLite3-shm
+**/*.SQLite3-wal
+**/*.SQLite3-journal

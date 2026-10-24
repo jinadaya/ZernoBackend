@@ -9,6 +9,7 @@ Ktor + Exposed server for the Zerno Bible app. It serves Bibles stored as MyBibl
 | `./gradlew test` | Route tests (`testApplication`) against small fixture databases, plus checks of the real meta database and bundled Bibles |
 | `./gradlew run` | Starts the server on port 8080 (`PORT` overrides) |
 | `./gradlew buildFatJar` | Builds a runnable JAR |
+| `docker build -t zerno-backend .` | Builds the server image (JAR, public-domain Bibles, meta database, content) |
 
 Config lives in `src/main/resources/application.yaml`:
 
@@ -16,6 +17,19 @@ Config lives in `src/main/resources/application.yaml`:
 - `bible.biblesDir` (`BIBLE_FILES_DIR`), default `databases/bibles`; a Bible file is read from `<biblesDir>/<language_id>/<db_path>`
 - `content.dir` (`CONTENT_DIR`), default `content`; plans and achievements, see below
 - `translations.showUnlicensed` (`SHOW_UNLICENSED_TRANSLATIONS`), default `false`; `true` lists translations whose licence isn't signed yet (NRT), for development only
+
+## Deploying
+
+`deploy/` runs one staging host with Docker Compose: the backend image behind Caddy, which gets a Let's Encrypt certificate (iOS refuses plain HTTP).
+
+1. Point a DNS name at the host and open ports 80 and 443.
+2. `cp deploy/.env.example deploy/.env` and set `ZERNO_DOMAIN`.
+3. `docker compose -f deploy/compose.yaml up -d --build`
+4. `curl https://<domain>/health` answers `OK`.
+
+The image reads its paths from the same environment variables as above (`BIBLE_META_DB_PATH`, `BIBLE_FILES_DIR`, `CONTENT_DIR`, `PORT`), set to the files baked into `/app`. Licensed Bible files are not in the repository: mount a folder with them over `/app/databases/bibles` (see the commented volume in `compose.yaml`) and flip their `licensed` flag in the meta database when the licence allows. The app's release base URL is then `https://<domain>/`.
+
+CI (`.github/workflows/ci.yml`) runs the tests and `validateBibles`, builds the image and checks `/health` in it.
 
 ## Routes
 
