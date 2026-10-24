@@ -14,6 +14,7 @@ Config lives in `src/main/resources/application.yaml`:
 
 - `bible.metaDbPath` (`BIBLE_META_DB_PATH`), default `databases/meta/meta.SQLite3`
 - `bible.biblesDir` (`BIBLE_FILES_DIR`), default `databases/bibles`; a Bible file is read from `<biblesDir>/<language_id>/<db_path>`
+- `content.dir` (`CONTENT_DIR`), default `content`; plans and achievements, see below
 
 ## Routes
 
@@ -25,8 +26,22 @@ Config lives in `src/main/resources/application.yaml`:
 | `GET /bible/{bibleId}` | Books; a book's `id` is its MyBible `book_number` (10 = Genesis) |
 | `GET /bible/{bibleId}/{bookId}/chapters` | Chapters of a book with verse counts |
 | `GET /bible/{bibleId}/verses?offset=0&limit=50` | Verses in reading order; `limit` is 1 to 1000, `total` is the whole Bible |
+| `GET /v1/plans` | `{"version", "plans": [...]}`: reading plans in list order, each in the app's plan format |
+| `GET /v1/achievements` | `{"version", "schema_version", "achievements": [...]}`: achievement definitions in the app's format |
 
 Errors are JSON: `{"error": "bible_not_found", "message": "..."}` with 400 for bad input and 404 for an unknown language, Bible, book, or a Bible whose file isn't on the server.
+
+Both `/v1` routes send the content `version` as an `ETag` with `Cache-Control: no-cache`; a request with a matching `If-None-Match` gets 304 and no body.
+
+## Content
+
+`content/` holds what the app can refresh without a release, in the same formats it bundles:
+
+- `content/plans/index.json`: plan ids in the order the app lists them
+- `content/plans/<id>.json`: one plan each (the app's `files/plans/<id>.json`)
+- `content/achievements.json`: the achievement catalog (the app's `files/achievements.json`)
+
+The server reads them once at start and refuses to start if a listed plan is missing, a plan's `id` doesn't match its file, a plan has no days, or an achievement code repeats. The `version` is a hash of the served documents, so editing a file and restarting is enough to publish it. A plan or achievement the app doesn't know how to show (new criteria type, unknown book) is the app's to skip, so keep new content within what released apps understand.
 
 ## Databases
 

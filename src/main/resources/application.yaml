@@ -8,3 +8,6 @@ ktor:
 bible:
   metaDbPath: "$BIBLE_META_DB_PATH:databases/meta/meta.SQLite3"
   biblesDir: "$BIBLE_FILES_DIR:databases/bibles"
+
+content:
+  dir: "$CONTENT_DIR:content"

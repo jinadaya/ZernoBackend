@@ -21,6 +21,7 @@ fun Application.configureRouting() {
         languagesRoutes()
         biblesRoutes()
         bibleRoutes()
+        contentRoutes()
     }
 }
 

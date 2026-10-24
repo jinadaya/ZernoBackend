@@ -17,9 +17,11 @@ object TestFixtures {
     fun config() = MapApplicationConfig(
         "bible.metaDbPath" to File(dir, "meta.SQLite3").absolutePath,
         "bible.biblesDir" to File(dir, "bibles").absolutePath,
+        "content.dir" to File(dir, "content").absolutePath,
     )
 
     private fun create(root: File) {
+        writeContent(File(root, "content"))
         sqlite(File(root, "meta.SQLite3"), File("databases/meta/meta.sql").readText().substringBefore("INSERT"))
         sqlite(
             File(root, "meta.SQLite3"),
@@ -43,6 +45,20 @@ object TestFixtures {
                 (10, 2, 1, 'Genesis 2:1'),
                 (10, 1, 3, 'Genesis 1:3'), (10, 1, 1, 'Genesis 1:1'), (10, 1, 2, 'Genesis 1:2');
             """,
+        )
+    }
+
+    /** Two one-day plans listed second-first, and two achievements. */
+    fun writeContent(dir: File) {
+        File(dir, "plans").mkdirs()
+        File(dir, "plans/index.json").writeText("""["two", "one"]""")
+        for (id in listOf("one", "two")) {
+            File(dir, "plans/$id.json").writeText(
+                """{"id": "$id", "version": 1, "days": [{"day": 1, "passages": ["John 1"], "minutes": 5}]}""",
+            )
+        }
+        File(dir, "achievements.json").writeText(
+            """{"version": 1, "achievements": [{"code": "first"}, {"code": "second"}]}""",
         )
     }
 
