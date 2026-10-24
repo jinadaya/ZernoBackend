@@ -15,6 +15,7 @@ Config lives in `src/main/resources/application.yaml`:
 - `bible.metaDbPath` (`BIBLE_META_DB_PATH`), default `databases/meta/meta.SQLite3`
 - `bible.biblesDir` (`BIBLE_FILES_DIR`), default `databases/bibles`; a Bible file is read from `<biblesDir>/<language_id>/<db_path>`
 - `content.dir` (`CONTENT_DIR`), default `content`; plans and achievements, see below
+- `translations.showUnlicensed` (`SHOW_UNLICENSED_TRANSLATIONS`), default `false`; `true` lists translations whose licence isn't signed yet (NRT), for development only
 
 ## Routes
 
@@ -28,10 +29,18 @@ Config lives in `src/main/resources/application.yaml`:
 | `GET /bible/{bibleId}/verses?offset=0&limit=50` | Verses in reading order; `limit` is 1 to 1000, `total` is the whole Bible |
 | `GET /v1/plans` | `{"version", "plans": [...]}`: reading plans in list order, each in the app's plan format |
 | `GET /v1/achievements` | `{"version", "schema_version", "achievements": [...]}`: achievement definitions in the app's format |
+| `GET /v1/translations` | `{"version", "translations": [...]}`: translations the app can download, see below |
+| `GET /v1/translations/{id}/file` | The translation's SQLite file, with ranges |
 
 Errors are JSON: `{"error": "bible_not_found", "message": "..."}` with 400 for bad input and 404 for an unknown language, Bible, book, or a Bible whose file isn't on the server.
 
-Both `/v1` routes send the content `version` as an `ETag` with `Cache-Control: no-cache`; a request with a matching `If-None-Match` gets 304 and no body.
+The three `/v1` documents send the content `version` as an `ETag` with `Cache-Control: no-cache`; a request with a matching `If-None-Match` gets 304 and no body.
+
+## Translations
+
+`/v1/translations` lists every Bible in the meta database whose file is on the server and whose `licensed` flag is 1 (NRT and the Tajik Bible stay 0 until their licences allow it). Each entry has `id`, `translation_code`, `display_name`, `language_id`, `licence`, `attribution`, `schema_version` (the file layout, 1 for now), `file_version` (the first 16 characters of the checksum), `size`, `sha256`, `download_url` and `bundled` (the app ships KJV and RST). `download_url` is relative to the API base URL; resolve it rather than concatenating, so a storage URL can replace it later.
+
+The file route sends the checksum as a strong `ETag`, `Accept-Ranges: bytes` and `Content-Disposition`. To resume, send `Range: bytes=<received>-` with `If-Range: "<sha256>"`: the server answers 206 with the rest, or 200 with the whole file if it changed meanwhile. A matching `If-None-Match` gets 304. Unknown, unlicensed and missing translations answer 404 `translation_not_found`. Files are read through `TranslationStorage`, local disk for now, so S3-compatible storage can replace it later. Checksums are worked out on first use and again when a file's size or date changes.
 
 ## Content
 

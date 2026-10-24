@@ -11,3 +11,6 @@ bible:
 
 content:
   dir: "$CONTENT_DIR:content"
+
+translations:
+  showUnlicensed: "$SHOW_UNLICENSED_TRANSLATIONS:false"

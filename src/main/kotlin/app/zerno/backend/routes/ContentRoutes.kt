@@ -15,7 +15,7 @@ fun Route.contentRoutes() {
     get("/v1/achievements") { call.respondDocument(content.achievements) }
 }
 
-private suspend fun ApplicationCall.respondDocument(document: ContentCatalog.Document) {
+internal suspend fun ApplicationCall.respondDocument(document: ContentCatalog.Document) {
     val etag = "\"${document.version}\""
     response.header(HttpHeaders.ETag, etag)
     // The app may keep a copy but asks every time, so a content change shows up on the next refresh.

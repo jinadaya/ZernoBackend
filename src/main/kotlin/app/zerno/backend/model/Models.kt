@@ -65,3 +65,23 @@ data class ErrorResponse(
     @SerialName("error") val error: String,
     @SerialName("message") val message: String,
 )
+
+/**
+ * One entry of `GET /v1/translations`. [fileVersion] changes whenever the file does; [downloadUrl] is relative to
+ * the API base URL (resolve it, don't concatenate, so an absolute storage URL works later too).
+ */
+@Serializable
+data class Translation(
+    @SerialName("id") val id: String,
+    @SerialName("translation_code") val translationCode: String,
+    @SerialName("display_name") val displayName: String,
+    @SerialName("language_id") val languageId: String,
+    @SerialName("licence") val licence: String,
+    @SerialName("attribution") val attribution: String,
+    @SerialName("schema_version") val schemaVersion: Int,
+    @SerialName("file_version") val fileVersion: String,
+    @SerialName("size") val size: Long,
+    @SerialName("sha256") val sha256: String,
+    @SerialName("download_url") val downloadUrl: String,
+    @SerialName("bundled") val bundled: Boolean,
+)

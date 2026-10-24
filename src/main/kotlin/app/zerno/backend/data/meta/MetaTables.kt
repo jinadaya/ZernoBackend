@@ -17,4 +17,7 @@ object MetaBiblesTable : Table("bibles") {
     val attribution = text("attribution")
     val dbType = text("db_type")
     val dbPath = text("db_path")
+    val schemaVersion = integer("schema_version")
+    val bundled = bool("bundled")
+    val licensed = bool("licensed")
 }

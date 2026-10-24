@@ -45,16 +45,26 @@ class SqliteMetaRepository(
         MetaBiblesTable.selectAll()
             .where { MetaBiblesTable.id eq bibleId }
             .firstOrNull()
-            ?.let {
-                BibleMeta(
-                    id = it[MetaBiblesTable.id],
-                    displayName = it[MetaBiblesTable.displayName],
-                    languageId = it[MetaBiblesTable.languageId],
-                    dbType = BibleMeta.BibleDbType.SQLITE,
-                    dbPath = it[MetaBiblesTable.dbPath],
-                )
-            }
+            ?.toBibleMeta()
     }
+
+    override suspend fun getAllBibleMeta(): List<BibleMeta> = db.query {
+        MetaBiblesTable.selectAll().orderBy(MetaBiblesTable.id).map { it.toBibleMeta() }
+    }
+
+    private fun ResultRow.toBibleMeta() = BibleMeta(
+        id = this[MetaBiblesTable.id],
+        displayName = this[MetaBiblesTable.displayName],
+        languageId = this[MetaBiblesTable.languageId],
+        dbType = BibleMeta.BibleDbType.SQLITE,
+        dbPath = this[MetaBiblesTable.dbPath],
+        translationCode = this[MetaBiblesTable.translationCode],
+        licence = this[MetaBiblesTable.licence],
+        attribution = this[MetaBiblesTable.attribution],
+        schemaVersion = this[MetaBiblesTable.schemaVersion],
+        bundled = this[MetaBiblesTable.bundled],
+        licensed = this[MetaBiblesTable.licensed],
+    )
 
     private fun ResultRow.toLanguage() = Language(
         id = this[MetaLanguagesTable.id],
