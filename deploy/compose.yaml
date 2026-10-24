@@ -1,0 +1,32 @@
+# One staging host: the backend behind Caddy, which gets and renews a TLS certificate for ZERNO_DOMAIN
+# (iOS refuses plain HTTP). Copy .env.example to .env, set the domain, then: docker compose up -d --build
+services:
+  backend:
+    build: ..
+    restart: unless-stopped
+    environment:
+      SHOW_UNLICENSED_TRANSLATIONS: ${SHOW_UNLICENSED_TRANSLATIONS:-false}
+    # Licensed Bible files (NRT) go here once the licence allows; the image carries the public-domain ones.
+    # volumes:
+    #   - /srv/zerno/bibles:/app/databases/bibles:ro
+    expose:
+      - "8080"
+
+  caddy:
+    image: caddy:2.10
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      ZERNO_DOMAIN: ${ZERNO_DOMAIN:?set ZERNO_DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
