@@ -7,7 +7,10 @@ import app.zerno.backend.data.bible.SqliteBibleRepositoryFactory
 import app.zerno.backend.data.meta.SqliteMetaRepository
 import app.zerno.backend.data.sql.SqliteDatabases
 import app.zerno.backend.domain.bible.BibleRepository
+import app.zerno.backend.data.translation.LocalTranslationStorage
 import app.zerno.backend.domain.meta.MetaRepository
+import app.zerno.backend.domain.translation.TranslationCatalog
+import app.zerno.backend.domain.translation.TranslationStorage
 import io.ktor.server.application.*
 import org.koin.dsl.module
 import org.koin.ktor.plugin.KoinIsolated
@@ -22,6 +25,8 @@ fun appModule(config: BibleConfig) = module {
     single<BibleRepository.Factory> { SqliteBibleRepositoryFactory(config.biblesDir) }
     single { BibleRepositories(get(), get()) }
     single(createdAtStart = true) { ContentCatalog(config.contentDir) }
+    single<TranslationStorage> { LocalTranslationStorage(config.biblesDir) }
+    single { TranslationCatalog(get(), get(), config.showUnlicensed) }
 }
 
 fun Application.configureDependencies(config: BibleConfig) {

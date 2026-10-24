@@ -14,4 +14,7 @@ interface MetaRepository {
 
     /** Where a Bible's database lives, or null for an unknown Bible. */
     suspend fun getBibleMeta(bibleId: String): BibleMeta?
+
+    /** Every Bible in the meta database, by id. */
+    suspend fun getAllBibleMeta(): List<BibleMeta>
 }

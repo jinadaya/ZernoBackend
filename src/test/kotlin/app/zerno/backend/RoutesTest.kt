@@ -31,7 +31,7 @@ class RoutesTest {
     @Test
     fun `bibles lists a language's bibles with licence and attribution`() = fixtureApp {
         val bibles = client.get("/bibles?langId=en").decode<List<Bible>>()
-        assertEquals(listOf("gone", "tst"), bibles.map { it.id })
+        assertEquals(listOf("gone", "lck", "tst"), bibles.map { it.id })
         val tst = bibles.single { it.id == "tst" }
         assertEquals("TST", tst.translationCode)
         assertEquals("public-domain", tst.licence)

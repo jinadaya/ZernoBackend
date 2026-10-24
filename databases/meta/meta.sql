@@ -17,6 +17,12 @@ CREATE TABLE bibles (
     attribution TEXT NOT NULL,
     db_type TEXT NOT NULL,
     db_path TEXT NOT NULL,
+    -- Version of the file layout the app reads (BE-03 validates v1).
+    schema_version INTEGER NOT NULL,
+    -- 1 when the app ships the file, so it never needs to download it.
+    bundled INTEGER NOT NULL,
+    -- 0 keeps a translation out of /v1/translations until its licence allows distribution.
+    licensed INTEGER NOT NULL,
     FOREIGN KEY(language_id) REFERENCES languages(id)
 );
 
@@ -25,14 +31,15 @@ INSERT INTO languages (id, name, local_name) VALUES
     ('ru', 'Russian', 'Русский'),
     ('tgk', 'Tajik', 'Забо́ни тоҷикӣ');
 
-INSERT INTO bibles (id, translation_code, display_name, language_id, licence, attribution, db_type, db_path) VALUES
+INSERT INTO bibles (id, translation_code, display_name, language_id, licence, attribution, db_type, db_path,
+                    schema_version, bundled, licensed) VALUES
     ('kjv', 'KJV', 'King James Version', 'en', 'public-domain',
-     'King James Version. Public domain (Crown copyright in the United Kingdom).', 'sqlite', 'kjv.SQLite3'),
+     'King James Version. Public domain (Crown copyright in the United Kingdom).', 'sqlite', 'kjv.SQLite3', 1, 1, 1),
     ('asv', 'ASV', 'American Standard Version', 'en', 'public-domain',
-     'American Standard Version (1901). Public domain.', 'sqlite', 'asv.SQLite3'),
+     'American Standard Version (1901). Public domain.', 'sqlite', 'asv.SQLite3', 1, 0, 1),
     ('rst', 'RST', 'Синодальный перевод', 'ru', 'public-domain',
-     'Синодальный перевод (1876). Общественное достояние.', 'sqlite', 'rst.SQLite3'),
+     'Синодальный перевод (1876). Общественное достояние.', 'sqlite', 'rst.SQLite3', 1, 1, 1),
     ('nrt', 'NRT', 'Новый русский перевод', 'ru', 'proprietary',
-     'Новый русский перевод © Biblica, Inc. Used by permission.', 'sqlite', 'nrt.SQLite3'),
+     'Новый русский перевод © Biblica, Inc. Used by permission.', 'sqlite', 'nrt.SQLite3', 1, 0, 0),
     ('km', 'KM', 'Китоби Муқаддас (1992)', 'tgk', 'unknown',
-     'Китоби Муқаддас (1992).', 'sqlite', 'km.SQLite3');
+     'Китоби Муқаддас (1992).', 'sqlite', 'km.SQLite3', 1, 0, 0);

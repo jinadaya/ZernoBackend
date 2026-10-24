@@ -18,6 +18,8 @@ dependencies {
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.forwarded.header)
+    implementation(libs.ktor.server.partial.content)
+    implementation(libs.ktor.server.conditional.headers)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)

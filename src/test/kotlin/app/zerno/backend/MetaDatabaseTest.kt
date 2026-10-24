@@ -39,6 +39,14 @@ class MetaDatabaseTest {
         }
     }
 
+    @Test
+    fun `only the public-domain translations are licensed, and the app bundles KJV and RST`() = runBlocking {
+        val bibles = SqliteMetaRepository(SqliteDatabases.openReadOnly(metaDb)).getAllBibleMeta().associateBy { it.id }
+        assertEquals(setOf("kjv", "asv", "rst"), bibles.values.filter { it.licensed }.map { it.id }.toSet())
+        assertEquals(setOf("kjv", "rst"), bibles.values.filter { it.bundled }.map { it.id }.toSet())
+        assertTrue(bibles.values.all { it.schemaVersion == 1 })
+    }
+
     private fun dump(file: File, table: String): List<List<String?>> =
         DriverManager.getConnection("jdbc:sqlite:${file.absolutePath}").use { conn ->
             conn.createStatement().use { stmt ->

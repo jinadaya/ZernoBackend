@@ -28,8 +28,9 @@ object TestFixtures {
             """
             INSERT INTO languages VALUES ('en', 'English', 'English'), ('xx', 'Empty', 'Empty');
             INSERT INTO bibles VALUES
-                ('tst', 'TST', 'Test Bible', 'en', 'public-domain', 'Test attribution', 'sqlite', 'tst.SQLite3'),
-                ('gone', 'GONE', 'Missing file', 'en', 'public-domain', 'Gone', 'sqlite', 'gone.SQLite3');
+                ('tst', 'TST', 'Test Bible', 'en', 'public-domain', 'Test attribution', 'sqlite', 'tst.SQLite3', 1, 0, 1),
+                ('gone', 'GONE', 'Missing file', 'en', 'public-domain', 'Gone', 'sqlite', 'gone.SQLite3', 1, 0, 1),
+                ('lck', 'LCK', 'Not licensed yet', 'en', 'proprietary', 'Locked', 'sqlite', 'tst.SQLite3', 1, 0, 0);
             """,
         )
         sqlite(
