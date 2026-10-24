@@ -29,3 +29,11 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
 }
+
+tasks.register<JavaExec>("validateBibles") {
+    group = "verification"
+    description = "Checks the Bible files against schema v1 and writes databases/bibles/checksums.sha256"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass = "app.zerno.backend.validation.ValidateBiblesKt"
+    args("databases/bibles")
+}

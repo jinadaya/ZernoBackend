@@ -49,3 +49,7 @@ The server reads them once at start and refuses to start if a listed plan is mis
   `rm databases/meta/meta.SQLite3 && sqlite3 databases/meta/meta.SQLite3 < databases/meta/meta.sql`
 - Bible files are opened read-only and never modified by the server.
 - Only public-domain texts are in this repository (KJV, ASV, RST). NRT is Biblica's copyrighted text and stays out until the licence is signed; the Tajik Bible (`km`) stays out until its licence is checked. Both are listed in the meta database and answer 404 `bible_file_missing` until their files are deployed.
+
+### Checking Bible files
+
+`./gradlew validateBibles` checks every `*.SQLite3` under `databases/bibles` against the v1 schema the app reads (`info`, `books`, `verses` with a unique index on book, chapter and verse; known book numbers, names and colours; non-empty verses; known markup tags) and writes `databases/bibles/checksums.sha256`. Errors fail the task. Warnings only report differences from the reference versification (KJV, or the Synodal one when `russian_numbering` is true), such as verses the translation leaves out, and spans that don't close. Run it before adding or replacing a translation file, and commit the updated checksums with it.
